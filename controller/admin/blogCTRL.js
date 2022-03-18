@@ -26,6 +26,7 @@ const blogCtrl = {
         return res.status(400).json({ msg: "No Image is Selected" });
       }
       const newBlog = new Blogs({
+        user: req.user.id,
         title,
         description,
         images,
