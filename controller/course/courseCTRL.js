@@ -230,10 +230,7 @@ const courseCTRL = {
       );
 
       user.enrolled.filter((item) => {
-        return totalEnrolled(
-          item.courseDetails._id,
-          item.courseDetails.enrolled
-        );
+        return totalEnrolled(item._id, item.enrolled);
       });
 
       return res.json({ msg: "Enrolled" });
