@@ -122,6 +122,63 @@ const authCTRL = {
       return res.status(500).json({ msg: error.message });
     }
   },
+  updatePassword: async (req, res) => {
+    try {
+      const { nid, currentPassword, password, rePassword } = req.body;
+      if (!nid || !currentPassword || !password || !rePassword) {
+        return res.status(400).json({ msg: "Invalid Credentials" });
+      }
+      const user = await Parent.findOne({ nid });
+      if (!user) {
+        return res.status(400).json({ msg: "User not Found" });
+      }
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ msg: "Current Password not Matched" });
+      }
+      if (password.length < 4) {
+        return res.status(400).json({ msg: "Password must be 4 Lengths Long" });
+      }
+      if (password !== rePassword) {
+        return res.status(400).json({ msg: "Password Doesn't Match" });
+      }
+      const hashPass = await bcrypt.hash(password, 10);
+      await Student.findOneAndUpdate(
+        { _id: req.params.parent_id },
+        {
+          password: hashPass,
+        }
+      );
+      res.json({ msg: "Password Changed" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  updateProfile: async (req, res) => {
+    try {
+      const { name, mobile, address, image } = req.body;
+      if (!name || !mobile || !address) {
+        return res.status(400).json({ msg: "Invalid Credentials" });
+      }
+      const id = req.params.parent_id;
+      const user = await Parent.findOne({ _id: id });
+      if (!user) {
+        return res.status(400).json({ msg: "User not Found" });
+      }
+      await Parent.findOneAndUpdate(
+        { _id: id },
+        {
+          name: name,
+          mobile: mobile,
+          address: address,
+          image: image,
+        }
+      );
+      res.json({ msg: "Profile Updated" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
 };
 
 const createAccessToken = (parent) => {

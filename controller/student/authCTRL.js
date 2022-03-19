@@ -127,11 +127,73 @@ const authCTRL = {
   },
   getUser: async (req, res) => {
     try {
-      const student = await Student.findById(req.user.id).select("-password");
+      const student = await Student.findById(req.user.id)
+        .select("-password")
+        .select("-parent")
+        .select("-nid")
+        .select("-enrolled");
       if (!student) {
         return res.status(400).json({ msg: "User Doesn't Exists." });
       }
       res.json({ student });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  updatePassword: async (req, res) => {
+    try {
+      const { userName, currentPassword, password, rePassword } = req.body;
+      if (!userName || !currentPassword || !password || !rePassword) {
+        return res.status(400).json({ msg: "Invalid Credentials" });
+      }
+      const user = await Student.findOne({ userName });
+      if (!user) {
+        return res.status(400).json({ msg: "User not Found" });
+      }
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ msg: "Current Password not Matched" });
+      }
+      if (password.length < 4) {
+        return res.status(400).json({ msg: "Password must be 4 Lengths Long" });
+      }
+      if (password !== rePassword) {
+        return res.status(400).json({ msg: "Password Doesn't Match" });
+      }
+      const hashPass = await bcrypt.hash(password, 10);
+      await Student.findOneAndUpdate(
+        { _id: req.params.student_id },
+        {
+          password: hashPass,
+        }
+      );
+      res.json({ msg: "Password Changed" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  updateProfile: async (req, res) => {
+    try {
+      const { name, mobile, address, image } = req.body;
+      if (!name || !mobile || !address) {
+        return res.status(400).json({ msg: "Invalid Credentials" });
+      }
+      const id = req.params.student_id;
+      const user = await Student.findOne({ _id: id });
+      if (!user) {
+        return res.status(400).json({ msg: "User not Found" });
+      }
+      await Student.findOneAndUpdate(
+        { _id: id },
+        {
+          name: name,
+          mobile: mobile,
+          address: address,
+          image: image,
+        }
+      );
+      res.json({ msg: "Profile Updated" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
