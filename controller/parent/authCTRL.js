@@ -143,7 +143,7 @@ const authCTRL = {
         return res.status(400).json({ msg: "Password Doesn't Match" });
       }
       const hashPass = await bcrypt.hash(password, 10);
-      await Student.findOneAndUpdate(
+      await Parent.findOneAndUpdate(
         { _id: req.params.parent_id },
         {
           password: hashPass,
