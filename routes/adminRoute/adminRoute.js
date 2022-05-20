@@ -13,6 +13,9 @@ router.get("/instructor", auth, authAdmin, adminCTRL.instructorList);
 
 router
   .route("/instructor/:instructor_id")
-  .put(auth, authAdmin, adminCTRL.updateInstructor);
+  .put(auth, authAdmin, adminCTRL.updateInstructor)
+  .delete(auth, authAdmin, adminCTRL.deleteInstructor);
+
+router.route("/dashboard").get(auth, authAdmin, adminCTRL.dashboardDetails);
 
 module.exports = router;

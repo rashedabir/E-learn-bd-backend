@@ -1,5 +1,8 @@
 const Admin = require("../../model/adminModel");
 const Instructor = require("../../model/instructorModel");
+const Parent = require("../../model/parentsModel");
+const Student = require("../../model/studentsModel");
+const Course = require("../../model/courseModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -134,6 +137,31 @@ const adminCTRL = {
         { status }
       );
       res.json({ msg: "Updated" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  deleteInstructor: async (req, res) => {
+    try {
+      await Instructor.findByIdAndDelete({ _id: req.params.instructor_id });
+      res.json({ msg: "Deleted" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  dashboardDetails: async (req, res) => {
+    try {
+      const instructor = await Instructor.find();
+      const student = await Student.find();
+      const parent = await Parent.find();
+      const courses = await Course.find();
+
+      res.json({
+        instructor: instructor?.length,
+        student: student?.length,
+        parent: parent?.length,
+        courses: courses?.length,
+      });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
